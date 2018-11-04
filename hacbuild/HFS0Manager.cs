@@ -90,11 +90,37 @@ namespace hacbuild
             return header;
 
         }
-        internal static bool BuildHFS0(string inDir, string outFile)
+
+        internal static string xci_multiplier(string inDir)
+        {
+            float length_input = 0;
+            int file_number = 0;
+            foreach (string file in Directory.GetFiles(inDir))
+            {
+                length_input = length_input + 1 + Path.GetFileName(file).Length;
+                file_number = file_number + 1;
+            }
+
+            //Console.WriteLine("Length of string of files {0}", length_input);
+            //Console.WriteLine("Number of files {0}", file_number);
+            float n_lines = 1 + (4 * file_number) + (length_input / 16);
+            //Console.WriteLine("Number of lines {0}", n_lines);
+            float mult = (n_lines / 32);
+            int round_mult_up = (int)Math.Ceiling(mult);
+            //Console.WriteLine("Multiplier {0}", mult);
+            Console.WriteLine("Calculated multiplier: {0}", round_mult_up);
+            string multip = round_mult_up.ToString();
+            return multip;
+        }
+
+
+        internal static bool BuildHFS0(string inDir, string outFile, string multiplier)   
+        //internal static bool BuildHFS0(string inDir, string outFile)
         {
             Console.WriteLine("Building {0} from folder {1}...", outFile, inDir);
-        
-
+            int vmultiplier = Int32.Parse(multiplier);  
+            int secuhash = 0x200*vmultiplier;
+            //Console.WriteLine("Round secuhash {0}", vmultiplier);
             hfs0_header header = new hfs0_header();
             header.Magic = 0x30534648; // HFS0
 
@@ -122,20 +148,30 @@ namespace hacbuild
                 Console.WriteLine("[ERR] Input folder {0} does not exist.", inDir);
                 return false;
             }
-
+            int length_input = 0;
+            int file_number = 0;
             List<string> inputFiles = new List<string>();
             foreach(string file in Directory.GetFiles(inDir))
             {
                 inputFiles.Add(Path.GetFileName(file));
+                //length_input = length_input + 1 + Path.GetFileName(file).Length;
+                //file_number = file_number + 1;
             }
 
-  
-
+            //Console.WriteLine("Length of string of files {0}", length_input);
+            //Console.WriteLine("Number of files {0}", file_number);
+            //float n_lines =  1+(4*file_number)+(length_input/16);
+            //Console.WriteLine("Number of lines {0}", n_lines);
+            //float mult = (n_lines/32);
+            //int round_mult_up = (int)Math.Ceiling(mult);
+            //Console.WriteLine("Multiplier {0}", mult);
+            //Console.WriteLine("Round multiplier {0}", round_mult_up);
+            //int secuhash2 = 0x200 * round_mult_up;
 
 
 
             // Handling root partitions for correct partition order
-            if(inputFiles.Count >= 3 && inputFiles.Count <= 4 && inputFiles.Contains("secure") && inputFiles.Contains("normal") && inputFiles.Contains("update"))
+            if (inputFiles.Count >= 3 && inputFiles.Count <= 4 && inputFiles.Contains("secure") && inputFiles.Contains("normal") && inputFiles.Contains("update"))
             {
                 if(inputFiles.Contains("logo"))
                 {
@@ -180,13 +216,30 @@ namespace hacbuild
                 UInt64 paddedSize = Convert.ToUInt64( Math.Ceiling((double)fileEntry.Size / (double)0x200) * 0x200);
                 fileEntry_relativeOffset += paddedSize;
 
-
-
-
-                if (fileEntry.Size > 0x200)
+                if (inputFiles.Count < 3)
+                {
                     fileEntry.HashedSize = 0x200;
+                }
+                else if (fileEntry.Size <= 0x200)
+                {
+                    fileEntry.HashedSize = 0x200;
+                }
+                else if (fileEntry.Size <= 0x128800)
+                {
+                    fileEntry.HashedSize = 0x200;
+                }
+                else if (header.NumberOfFiles < 5)
+                {
+                    fileEntry.HashedSize = Convert.ToUInt32(secuhash);
+                }
+                else if (fileEntry.Size > 0x200)
+                {
+                    fileEntry.HashedSize = 0x200;
+                }
                 else
+                {
                     fileEntry.HashedSize = Convert.ToUInt32(fileEntry.Size);
+                }
 
                 byte[] dataToHash = new byte[fileEntry.HashedSize];
                 inputFSReader.Read(dataToHash, 0, dataToHash.Length);
