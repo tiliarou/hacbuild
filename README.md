@@ -1,6 +1,8 @@
 # Hacbuild v1.1 - JulesOnTheRoad's mod
 Hacbuild is a utility to rebuild *Switch GameCards* (XCI) made by LucaFraga
-Original version can be found in https://github.com/LucaFraga/hacbuild
+
+Original version can be found at https://github.com/LucaFraga/hacbuild
+
 This is the revised version made by julesontheroad github.com/julesontheroad/hacbuild
 
 ## Changes
