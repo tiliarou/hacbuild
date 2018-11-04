@@ -196,8 +196,8 @@ namespace hacbuild
                     Console.WriteLine("....................................");
                     Console.WriteLine("Building xci");
                     Console.WriteLine("....................................");
-                    Console.WriteLine("DONE");
                     XCIManager.BuildXCI(inPath, outPath);
+                    Console.WriteLine("DONE");
                     Console.WriteLine("....................................");
                     Console.WriteLine("Erasing root.hfs0");
                     Console.WriteLine("....................................");
@@ -249,8 +249,8 @@ namespace hacbuild
                     Console.WriteLine("....................................");
                     Console.WriteLine("Building xci");
                     Console.WriteLine("....................................");
-                    Console.WriteLine("DONE");
                     XCIManager.BuildXCI(inPath_d, outPath_d);
+                    Console.WriteLine("DONE");
                     Console.WriteLine("....................................");
                     Console.WriteLine("Erasing root.hfs0");
                     Console.WriteLine("....................................");
